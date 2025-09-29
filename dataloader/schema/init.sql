@@ -39,7 +39,6 @@ CREATE TABLE email
 CREATE TABLE task
 (
     task_id UUID PRIMARY KEY,
-    user_id UUID REFERENCES app_user,
     title TEXT,
     task_description TEXT,
     task_priority TEXT,

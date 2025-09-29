@@ -11,7 +11,7 @@ from app.schemas.app import User, BaseEmail, Email
 router = APIRouter(tags=["email"])
 
 
-@router.get("/emails/add_email")
+@router.post("/emails/add_email")
 async def add_email(
     current_user: Annotated[User, Depends(get_current_user)],
     session: SessionDep,
@@ -24,4 +24,5 @@ async def add_email(
     new_email = Email(**email.model_dump(), user_id=current_user.user_id)
     session.add(new_email)
     session.commit()
+    session.refresh(new_email)
     return new_email

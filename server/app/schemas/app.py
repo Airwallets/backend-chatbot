@@ -65,7 +65,6 @@ class Task(SQLModel, table=True):
     __tablename__ = "task"
 
     task_id: UUID = Field(default_factory=uuid4, primary_key=True)
-    user_id: UUID = Field(foreign_key="app_user.user_id")
     title: Optional[str] = None
     task_description: Optional[str] = None
     task_priority: Optional[str] = None
@@ -74,7 +73,6 @@ class Task(SQLModel, table=True):
     email_id: Optional[UUID] = Field(default=None, foreign_key="email.email_id")
     created_at: datetime = Field(default_factory=datetime.now)
 
-    user: Optional[User] = Relationship(back_populates="tasks")
     email: Optional[Email] = Relationship(back_populates="tasks")
 
 class Invoice(SQLModel, table=True):
