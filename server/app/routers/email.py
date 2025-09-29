@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from typing import Annotated
 
 from fastapi import Response, Depends, HTTPException, status, Request
+from sqlmodel import select
 
 from app.config import get_settings
 from app.db.connection import SessionDep
@@ -26,3 +27,11 @@ async def add_email(
     session.commit()
     session.refresh(new_email)
     return new_email
+
+@router.get("/emails")
+def get_emails(
+        current_user: Annotated[User, Depends(get_current_user)],
+        session: SessionDep
+) -> list[Email]:
+    return session.exec(select(Email)
+                        .where(Email.user_id == current_user.user_id)).all()

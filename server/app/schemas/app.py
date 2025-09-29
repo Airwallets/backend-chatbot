@@ -28,8 +28,7 @@ class User(UserDetails, table=True):
     knowledges: list["Knowledge"] = Relationship(back_populates="creator")
     invoices: list["Invoice"] = Relationship(back_populates="creator")
     emails: list["Email"] = Relationship(back_populates="user")
-    tasks: list["Task"] = Relationship(back_populates="user")
-    
+
     
 
 class Knowledge(SQLModel, table=True):

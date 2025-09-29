@@ -25,10 +25,11 @@ def add_task(
     Add tasks
     """
 
-    new_task = Task(title=title, description=description, email_id=email_id)
+    new_task = Task(title=title, task_description=description, email_id=email_id)
     session.add(new_task)
     session.commit()
-    return {"message": "success"}
+    session.refresh(new_task)
+    return new_task
 
 @router.get("/task")
 def get_tasks(
