@@ -15,7 +15,7 @@ def routing_determine_user_intent(state: State) -> str:
     elif intent == "replyEmail":
         return "reply_email"
     elif intent == "scheduleMeeting":
-        return "schedule_meeting"
+        return "check_provided_meeting_details"
     else:
         return "prompt_for_correct_user_intent"
     
@@ -37,6 +37,22 @@ def routing_check_provided_invoice_details(state: State) -> str:
         return "generate_invoice"
     
 
+def routing_check_provided_meeting_details(state: State) -> str:
+    """
+    Decide the next node based on the insertion details known
+    """
+    
+    if (
+        state.get("meeting_title") is None or
+        state.get("recipient_email") is None or
+        state.get("recipient_name") is None or
+        state.get("start_time") is None
+    ):
+        return "ask_for_meeting_details"
+    else:
+        return "schedule_meeting"
+    
+
 def routing_wait_for_user_input(state: State) -> str:
     """
     Decide the next node based on the user intent
@@ -46,4 +62,6 @@ def routing_wait_for_user_input(state: State) -> str:
         return "determine_user_intent"
     elif state.get("intent") == "generateInvoice":
         return "check_provided_invoice_details"
+    elif state.get("intent") == "scheduleMeeting":
+        return "check_provided_meeting_details"
     
