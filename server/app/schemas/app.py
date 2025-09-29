@@ -21,6 +21,7 @@ class User(UserDetails, table=True):
     user_id: UUID = Field(default_factory=uuid4, primary_key=True)
     saltpassword: str = Field()
     created_at: datetime = Field(default_factory=datetime.now)
+
     access_token: Optional[str] = None
     refresh_token: Optional[str] = None
 
@@ -86,3 +87,4 @@ class Invoice(SQLModel, table=True):
     item_cost: Optional[float] = None
 
     creator: Optional[User] = Relationship(back_populates="invoices")
+
