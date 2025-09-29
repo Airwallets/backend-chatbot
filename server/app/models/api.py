@@ -12,6 +12,4 @@ class UserResponse(BaseModel):
 
     email: str
     name: Optional[str]
-    region: Optional[str]
-    location: Optional[str]
 

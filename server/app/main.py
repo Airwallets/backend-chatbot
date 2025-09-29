@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import FastAPI, Depends, status, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from .db.connection import get_sqlmodel_session
@@ -28,8 +29,20 @@ app = FastAPI(
         }
     ],
 )
-app.include_router(user.router)
 
+origins = [
+    "http://localhost:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(user.router)
 app.include_router(chatbot.router)
 app.include_router(oauth.router)
 app.include_router(email.router)
