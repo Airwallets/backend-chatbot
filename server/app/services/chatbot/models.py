@@ -12,7 +12,7 @@ from app.schemas.app import User
 class State(TypedDict):
     user: User
     messages: Annotated[list[str], add_messages]  # conversation history of all messages
-    intent: Optional[str]  # user's current goal: generateInvoice, parseInvoice, sendEmail, replyEmail, scheduleMeeting
+    intent: Optional[str]  # user's current goal: generateInvoice, sendEmail, replyEmail, scheduleMeeting
 
     # Invoice details
     name: str
@@ -24,7 +24,6 @@ class State(TypedDict):
     # Meeting details
     meeting_title: str
     recipient_email: str
-    recipient_name: str
     start_time: datetime
 
 
@@ -62,7 +61,6 @@ class MeetingInfo(BaseModel):
     """Extracts the meeting details mentioned by the user"""
     meeting_title: Optional[str] = Field(default=None, description="The title or name of the meeting to be scheduled")
     recipient_email: Optional[str] = Field(default=None, description="The email address of the meeting recipient")
-    recipient_name: Optional[str] = Field(default=None, description="The name of the meeting recipient")
     start_time: Optional[datetime] = Field(
         default=None, 
         description="The meeting start time in ISO 8601 datetime format (e.g., 2025-09-29T15:30:00). "

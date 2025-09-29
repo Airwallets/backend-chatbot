@@ -8,8 +8,6 @@ def routing_determine_user_intent(state: State) -> str:
 
     if intent == "generateInvoice":
         return "check_provided_invoice_details"
-    elif intent == "parseInvoice":
-        return "parse_invoice"
     elif intent == "sendEmail":
         return "send_email"
     elif intent == "replyEmail":
@@ -45,7 +43,6 @@ def routing_check_provided_meeting_details(state: State) -> str:
     if (
         state.get("meeting_title") is None or
         state.get("recipient_email") is None or
-        state.get("recipient_name") is None or
         state.get("start_time") is None
     ):
         return "ask_for_meeting_details"

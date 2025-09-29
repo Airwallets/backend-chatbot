@@ -8,7 +8,7 @@ from app.services.chatbot.helper_functions import (
 )
 from app.services.chatbot.models import State
 
-from ...services.google import create_google_api_client, create_calendar_event
+from app.services.google import create_google_api_client, create_calendar_event
 
 
 async def determine_user_intent_node(model, state: State):
@@ -145,7 +145,6 @@ async def check_provided_meeting_details_node(model, state: State):
     return {
         "meeting_title": extracted_info.get("meeting_title"),
         "recipient_email": extracted_info.get("recipient_email"),
-        "recipient_name": extracted_info.get("recipient_name"),
         "start_time": extracted_info.get("start_time")
     }
 
@@ -155,7 +154,7 @@ async def ask_for_meeting_details_node(model, state: State):
     Node to check which meeting details are missing and ask the user for them
     """
     
-    required_details = ["meeting_title", "recipient_email", "recipient_name", "start_time"]
+    required_details = ["meeting_title", "recipient_email", "start_time"]
     
     # Find which details are still missing
     missing_details = [detail for detail in required_details if not state.get(detail)]
@@ -177,4 +176,29 @@ async def ask_for_meeting_details_node(model, state: State):
 
     return {
         "messages": [AIMessage(content=prompt_text)]
+    }
+
+
+async def schedule_meeting_node(model, state: State):
+    """
+    Node to schedule a meeting
+    """
+    meeting_title = state.get("meeting_title")
+    recipient_email = state.get("recipient_email")
+    start_time = state.get("start_time")
+    user = state.get("user")
+
+    calendar_client = create_google_api_client("calendar", user)
+
+    create_calendar_event(
+        client=calendar_client,
+        title=meeting_title,
+        email=recipient_email,
+        start_time=start_time
+    )
+
+    start_time_str = start_time.strftime("%Y-%m-%d %H:%M")
+
+    return {
+        "messages": [AIMessage(content=f"Scheduled meeting with {recipient_email} at {start_time_str}")]
     }

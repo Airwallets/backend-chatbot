@@ -50,7 +50,6 @@ meeting_extraction_prompt_template = ChatPromptTemplate.from_messages(
             "Extract the following fields if available: "
             "- meeting_title: the title or name of the meeting to be scheduled "
             "- recipient_email: the email address of the meeting recipient "
-            "- recipient_name: the name of the meeting recipient "
             "- start_time: the meeting start time in ISO 8601 datetime format (e.g., 2025-09-29T15:30:00). "
             "If the year is not specified, assume 2025. "
             "If the month is not specified, assume September (09)."
@@ -111,7 +110,6 @@ def extract_meeting_info(model, user_message: str) -> dict:
     return {
         "meeting_title": result.meeting_title,
         "recipient_email": result.recipient_email,
-        "recipient_name": result.recipient_name,
         "start_time": result.start_time
     }
 

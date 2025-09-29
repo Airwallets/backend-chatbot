@@ -23,7 +23,7 @@ class ChatbotQuery(BaseModel):
 async def chatbot_query(
     request: Request, 
     query: ChatbotQuery,
-    #current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Processes a user's message with the chatbot and returns the chatbot's reply.
@@ -35,8 +35,9 @@ async def chatbot_query(
 
     config = {"configurable": {"thread_id": query.thread_id}}
 
-    # Initialise the state of the graph with the current user & the first user message
+    # Initialise the state of the graph with the current user & the next user message
     state_dict = {
+        "user": current_user,
         "messages": [{"role": "user", "content": query.message}]
     }
 
