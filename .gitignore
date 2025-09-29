@@ -1,0 +1,5 @@
+.idea/
+.env
+*.csv
+venv/
+.venv/
