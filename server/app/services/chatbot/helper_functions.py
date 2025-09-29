@@ -2,10 +2,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langgraph.types import interrupt
 
 from app.services.chatbot.models import (
-    UserIntent, 
-    ServiceInfo, 
-    InsertionInfo, 
-    UserSatisfaction
+    UserIntent
 )
 
 
