@@ -25,3 +25,5 @@ class User(UserDetails, table=True):
 
     saltpassword: str = Field()
     created_at: datetime = Field(default_factory=datetime.now)
+    access_token: Optional[str] = ""
+    refresh_token: Optional[str] = ""

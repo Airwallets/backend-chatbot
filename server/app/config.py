@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     mistral_api_key: str
     hf_token: str  # required for tokenizer to work
+
+    google_client_id: str
+    google_client_secret: str
+    google_redirect_uri: str
+
     model_config = SettingsConfigDict(
         env_file=(
             "app/.env" if os.getenv("MODE", "") == "PROD" else "app/.env.test"
