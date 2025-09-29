@@ -9,8 +9,6 @@ from app.config import get_settings
 from app.schemas.app import User
 import app.services.users as users
 
-from app.schemas.app import RoleType
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
@@ -59,23 +57,3 @@ async def get_current_user(
         raise credentials_exception
 
     return user
-
-
-class RoleVerifier:
-    """
-    Add a dependency guard to only allow
-    specified roles to access the endpoint
-    """
-
-    def __init__(self, roles: list[RoleType]):
-        self.roles = roles
-
-    def __call__(
-        self, current_user: Annotated[User, Depends(get_current_user)]
-    ) -> User:
-        if current_user.role.type not in self.roles:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Only roles: {self.roles} has permission to access this resource",
-            )
-        return current_user

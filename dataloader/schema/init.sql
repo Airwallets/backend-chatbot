@@ -11,6 +11,5 @@ CREATE TABLE app_user
     name         TEXT      NOT NULL,
     region       TEXT,
     location     TEXT,
-    status       TEXT      NOT NULL,
     created_at   TIMESTAMP NOT NULL
 );

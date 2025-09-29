@@ -7,11 +7,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.config import get_settings
 from app.db.connection import SessionDep
-from app.dependencies import get_current_user, RoleVerifier
-from app.schemas.app import User, UserDetails, RoleType
-from app.models.api import UserSuggestionsResponse, UserResponse
+from app.dependencies import get_current_user
+from app.schemas.app import User
+from app.models.api import UserResponse
 import app.services.users as users
-from app.services.users import UserFilterDetails
 from app.services.auth import (
     Token,
     authenticate_user,
@@ -108,7 +107,4 @@ async def read_users_me(
     """
     Retrieves the currently logged in user
     """
-    return_user = UserResponse(
-        **current_user.model_dump(), type=current_user.role.type
-    )
-    return return_user
+    return current_user
