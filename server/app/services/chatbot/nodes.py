@@ -3,6 +3,7 @@ from langchain.schema import AIMessage, HumanMessage
 from app.services.chatbot.helper_functions import (
     extract_user_intent,
     extract_invoice_info,
+    extract_meeting_info,
     user_input
 )
 from app.services.chatbot.models import State
@@ -131,8 +132,49 @@ async def generate_invoice_node(model, state: State):
         "messages": [AIMessage(content=f"Generated invoice:\n{invoice}")]
     }
 
-async def schedule_meeting_node(model, state: State):
-    client = create_google_api_client("calendar", state["user"])
-    create_calendar_event(client, state["title"], state["email"], state["start_time"])
 
-    # return
+async def check_provided_meeting_details_node(model, state: State):
+    """
+    Node to check if any meeting details are provided, if not tries to extract it from the last user message
+    """
+    
+    # Extract provided meeting details from the last user message
+    last_message = state.get("messages")[-1].content if state.get("messages") else ""
+    extracted_info = extract_meeting_info(model, last_message)
+    
+    return {
+        "meeting_title": extracted_info.get("meeting_title"),
+        "recipient_email": extracted_info.get("recipient_email"),
+        "recipient_name": extracted_info.get("recipient_name"),
+        "start_time": extracted_info.get("start_time")
+    }
+
+
+async def ask_for_meeting_details_node(model, state: State):
+    """
+    Node to check which meeting details are missing and ask the user for them
+    """
+    
+    required_details = ["meeting_title", "recipient_email", "recipient_name", "start_time"]
+    
+    # Find which details are still missing
+    missing_details = [detail for detail in required_details if not state.get(detail)]
+    
+    # Construct a prompt asking for the missing details
+    if len(missing_details) == 1:
+        prompt_text = (
+            f"I am happy to help you schedule a meeting. "
+            f"Could you please provide the {missing_details[0]} for the meeting?"
+        )
+    
+    else:
+        # Join the details into a readable phrase to ask the user
+        fields_phrase = ", ".join(missing_details[:-1]) + f" and {missing_details[-1]}"
+        prompt_text = (
+            f"I am happy to help you schedule a meeting. "
+            f"Could you please provide the {fields_phrase} for the meeting?"
+        )
+
+    return {
+        "messages": [AIMessage(content=prompt_text)]
+    }

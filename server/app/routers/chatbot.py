@@ -6,6 +6,8 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.types import Command
 
 from app.services.chatbot.graph import get_graph
+from app.schemas.app import User
+from app.dependencies import get_current_user
 
 
 router = APIRouter()
@@ -20,7 +22,8 @@ class ChatbotQuery(BaseModel):
 @router.post("/chatbot/query")
 async def chatbot_query(
     request: Request, 
-    query: ChatbotQuery
+    query: ChatbotQuery,
+    #current_user: User = Depends(get_current_user)
 ):
     """
     Processes a user's message with the chatbot and returns the chatbot's reply.
