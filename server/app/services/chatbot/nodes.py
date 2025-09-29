@@ -4,6 +4,7 @@ from app.services.chatbot.helper_functions import (
     extract_user_intent,
     extract_invoice_info,
     extract_meeting_info,
+    extract_email_satisfaction,
     user_input
 )
 from app.services.chatbot.models import State
@@ -202,3 +203,34 @@ async def schedule_meeting_node(model, state: State):
     return {
         "messages": [AIMessage(content=f"Scheduled meeting with {recipient_email} at {start_time_str}")]
     }
+
+
+async def generate_email_node(model, state: State):
+    """
+    Node to generate an email
+    """
+
+    email_sender = state.get("user").name
+
+    prompt = (
+        f"You are an AI assistant tasked with drafting a professional, polite work email.\n"
+        f"The sender of the email should be: {email_sender}\n\n"
+        f"Conversation context:\n{state.get('messages')}\n\n"
+        "Compose the email clearly, concisely, and appropriately for a professional setting."
+    )
+
+    response = await model.ainvoke(prompt)
+    return {
+        "messages": [AIMessage(content=f"Here's an email I generated:\n\n{response.content}. Would you like me to send it?")],
+        "generated_email": response
+    }
+
+
+async def determine_email_satisfaction_node(model, state: State):
+    """
+    Node to extract satisfaction about the generated email
+    """
+    last_message = state.get("messages")[-1].content if state.get("messages") else ""
+    satisfied = extract_email_satisfaction(model, last_message)
+
+    return {"satisfied": satisfied}

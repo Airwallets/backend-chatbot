@@ -12,7 +12,9 @@ from app.schemas.app import User
 class State(TypedDict):
     user: User
     messages: Annotated[list[str], add_messages]  # conversation history of all messages
-    intent: Optional[str]  # user's current goal: generateInvoice, sendEmail, replyEmail, scheduleMeeting
+    intent: Optional[str]  # user's current goal: generateInvoice, sendEmail, scheduleMeeting
+    satisfied: Optional[str]
+    generated_email: Optional[str]
 
     # Invoice details
     name: str
@@ -31,17 +33,13 @@ class UserIntent(BaseModel):
     """Classifies the user's intent based on their last message"""
     intent: Optional[Literal[
         "generateInvoice",
-        "parseInvoice",
         "sendEmail",
-        "replyEmail",
         "scheduleMeeting"
     ]] = Field(
         default=None,
         description=(
             "The user's intent. Must be 'generateInvoice' if they want to create an invoice. "
-            "Must be 'parseInvoice' if they want to extract or analyse information from an invoice. "
-            "Must be 'sendEmail' if they want to draft or send an email. "
-            "Must be 'replyEmail' if they want to respond to an existing email. "
+            "Must be 'sendEmail' if they want to draft or send or reply to an email. "
             "Must be 'scheduleMeeting' if they want to arrange or book a meeting. "
             "Return null if none of these apply."
         )
@@ -65,4 +63,15 @@ class MeetingInfo(BaseModel):
         default=None, 
         description="The meeting start time in ISO 8601 datetime format (e.g., 2025-09-29T15:30:00). "
                     "If the year is not specified, assume 2025. If the month is not specified, assume September (09)."
+    )
+
+
+class EmailSatisfaction(BaseModel):
+    """Captures the user's satisfaction with a generated email."""
+    satisfied: Literal["True", "False"] = Field(
+        default="True",
+        description=(
+            "Indicates whether the user is satisfied with the generated email. "
+            "Return 'True' if satisfied, 'False' if dissatisfied. Never return null."
+        )
     )

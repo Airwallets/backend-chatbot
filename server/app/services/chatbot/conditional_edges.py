@@ -9,9 +9,7 @@ def routing_determine_user_intent(state: State) -> str:
     if intent == "generateInvoice":
         return "check_provided_invoice_details"
     elif intent == "sendEmail":
-        return "send_email"
-    elif intent == "replyEmail":
-        return "reply_email"
+        return "generate_email"
     elif intent == "scheduleMeeting":
         return "check_provided_meeting_details"
     else:
@@ -50,6 +48,16 @@ def routing_check_provided_meeting_details(state: State) -> str:
         return "schedule_meeting"
     
 
+def routing_determine_email_satisfaction(state: State) -> str:
+    """
+    Decide the next node based on the user's generated email satisfaction
+    """
+    if state.get("satisfied") == "False":
+        return "determine_email_satisfaction"
+    else:
+        return "send_email"
+
+
 def routing_wait_for_user_input(state: State) -> str:
     """
     Decide the next node based on the user intent
@@ -61,4 +69,6 @@ def routing_wait_for_user_input(state: State) -> str:
         return "check_provided_invoice_details"
     elif state.get("intent") == "scheduleMeeting":
         return "check_provided_meeting_details"
+    elif state.get("intent") == "sendEmail":
+        return "determine_email_satisfaction"
     
