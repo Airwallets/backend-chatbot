@@ -280,3 +280,29 @@ async def send_email_node(model, state: State):
             AIMessage(content=f"Email successfully sent to {to} with subject '{subject}'.")
         ]
     }
+
+
+async def ask_for_email_details_node(model, state: State):
+    """
+    Node to check which email details are missing and ask the user for them
+    """
+    
+    required_details = ["email_address"]
+    
+    # Find which details are still missing
+    missing_details = [detail for detail in required_details if not state.get(detail)]
+    
+    # Construct a prompt asking for the missing details
+    if len(missing_details) == 1:
+        prompt_text = (
+            f"I am happy to help you send an email. "
+            f"Could you please provide the {missing_details[0]} for the email?"
+        )
+    
+    else:
+        # Join the details into a readable phrase to ask the user
+        fields_phrase = ", ".join(missing_details[:-1]) + f" and {missing_details[-1]}"
+        prompt_text = (
+            f"I am happy to help you send an email. "
+            f"Could you please provide the {fields_phrase} for the email?"
+        )

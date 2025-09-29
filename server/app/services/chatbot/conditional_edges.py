@@ -48,6 +48,17 @@ def routing_check_provided_meeting_details(state: State) -> str:
         return "schedule_meeting"
     
 
+def routing_check_provided_email_details(state: State) -> str:
+    """
+    Decide the next node based on the email details known
+    """
+    
+    if state.get("email_address") is None:
+        return "ask_for_email_details"
+    else:
+        return "determine_email_satisfaction"
+    
+
 def routing_determine_email_satisfaction(state: State) -> str:
     """
     Decide the next node based on the user's generated email satisfaction
@@ -69,6 +80,8 @@ def routing_wait_for_user_input(state: State) -> str:
         return "check_provided_invoice_details"
     elif state.get("intent") == "scheduleMeeting":
         return "check_provided_meeting_details"
+    elif state.get("intent") == "sendEmail" and state.get("email_address") is None:
+        return "check_provided_email_details"
     elif state.get("intent") == "sendEmail":
         return "determine_email_satisfaction"
     
