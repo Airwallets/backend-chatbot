@@ -10,7 +10,8 @@ from app.services.chatbot.nodes import (
     wait_for_user_input_node,
     check_provided_invoice_details_node,
     ask_for_invoice_details_node,
-    generate_invoice_node
+    generate_invoice_node,
+    schedule_meeting_node
 
 )
 from app.services.chatbot.conditional_edges import (
@@ -36,6 +37,7 @@ async def get_graph(checkpointer: AsyncPostgresSaver = None) -> StateGraph:
     graph_builder.add_node("check_provided_invoice_details", partial(check_provided_invoice_details_node, model))
     graph_builder.add_node("ask_for_invoice_details", partial(ask_for_invoice_details_node, model))
     graph_builder.add_node("generate_invoice", partial(generate_invoice_node, model))
+    graph_builder.add_node("schedule_meeting", partial(schedule_meeting_node, model))
 
     # Add edges to the graph
     graph_builder.add_edge(START, "determine_user_intent")

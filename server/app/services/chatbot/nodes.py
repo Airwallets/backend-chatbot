@@ -7,6 +7,8 @@ from app.services.chatbot.helper_functions import (
 )
 from app.services.chatbot.models import State
 
+from ...services.google import create_google_api_client, create_calendar_event
+
 
 async def determine_user_intent_node(model, state: State):
     """
@@ -128,3 +130,9 @@ async def generate_invoice_node(model, state: State):
         "invoice": invoice,
         "messages": [AIMessage(content=f"Generated invoice:\n{invoice}")]
     }
+
+async def schedule_meeting_node(model, state: State):
+    client = create_google_api_client("calendar", state["user"])
+    create_calendar_event(client, state["title"], state["email"], state["start_time"])
+
+    # return
