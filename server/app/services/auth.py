@@ -50,8 +50,6 @@ def signup_user(session: SessionDep, signup: UserSignup) -> User:
         saltpassword=get_password_hash(signup.password),
         email=signup.email,
         name=signup.name,
-        region=signup.region,
-        location=signup.location,
     )
 
     users.add_one(session, user)
