@@ -3,9 +3,6 @@ services:
   db:
     image: pgvector/pgvector:pg17
     restart: always
-    build:
-      context: ./db
-      dockerfile: Dockerfile
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

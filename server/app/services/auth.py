@@ -6,7 +6,7 @@ from sqlmodel import select
 
 from app.config import get_settings
 from app.db.connection import SessionDep
-from app.schemas.app import User, UserDetails, Role, RoleType
+from app.schemas.app import User, UserDetails
 import app.services.users as users
 
 
@@ -53,12 +53,6 @@ def signup_user(session: SessionDep, signup: UserSignup) -> User:
         region=signup.region,
         location=signup.location,
     )
-
-    # Retrieve consumer role key to link to user
-    role = session.exec(
-        select(Role).where(Role.type == RoleType.CONSUMER)
-    ).first()
-    user.role_id = role.role_id
 
     users.add_one(session, user)
     return user
