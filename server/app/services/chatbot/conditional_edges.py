@@ -9,7 +9,7 @@ def routing_determine_user_intent(state: State) -> str:
     if intent == "generateInvoice":
         return "check_provided_invoice_details"
     elif intent == "sendEmail":
-        return "generate_email"
+        return "check_provided_email_details"
     elif intent == "scheduleMeeting":
         return "check_provided_meeting_details"
     else:
@@ -53,7 +53,7 @@ def routing_determine_email_satisfaction(state: State) -> str:
     Decide the next node based on the user's generated email satisfaction
     """
     if state.get("satisfied") == "False":
-        return "determine_email_satisfaction"
+        return "generate_email"
     else:
         return "send_email"
 

@@ -10,6 +10,7 @@ from app.services.chatbot.helper_functions import (
 from app.services.chatbot.models import State
 
 from app.services.google import create_google_api_client, create_calendar_event
+from app.services.email import get_credentials, refresh_google_token, gmail_create_draft, gmail_send_draft
 
 
 async def determine_user_intent_node(model, state: State):
@@ -226,6 +227,20 @@ async def generate_email_node(model, state: State):
     }
 
 
+async def check_provided_email_details_node(model, state: State):
+    """
+    Node to check if any email details are provided, if not tries to extract it from the last user message
+    """
+    
+    # Extract provided meeting details from the last user message
+    last_message = state.get("messages")[-1].content if state.get("messages") else ""
+    extracted_info = extract_meeting_info(model, last_message)
+    
+    return {
+        "email_address": extracted_info.get("email_address")
+    }
+
+
 async def determine_email_satisfaction_node(model, state: State):
     """
     Node to extract satisfaction about the generated email
@@ -234,3 +249,27 @@ async def determine_email_satisfaction_node(model, state: State):
     satisfied = extract_email_satisfaction(model, last_message)
 
     return {"satisfied": satisfied}
+
+
+async def send_email_node(model, state: State):
+    """
+    Node to send an email
+    """
+    
+    user = state.get("user")
+    to = state.get("email_address")
+    subject = state.get("email_subject")
+    body = state.get("generated_email")
+
+    if not user.access_token and user.refresh_token:
+            user.access_token = refresh_google_token(user.refresh_token)
+
+    draft = gmail_create_draft(user=user, subject=subject, body=body, to=to)
+    # what should the id be?
+    gmail_send_draft(user=user, draft_id=draft["id"])
+
+    return {
+        "messages": [
+            AIMessage(content=f"Email successfully sent to {to} with subject '{subject}'.")
+        ]
+    }

@@ -14,6 +14,10 @@ class State(TypedDict):
     messages: Annotated[list[str], add_messages]  # conversation history of all messages
     intent: Optional[str]  # user's current goal: generateInvoice, sendEmail, scheduleMeeting
     satisfied: Optional[str]
+    
+    # Email related atttributes
+    email_address: Optional[str]
+    email_subject: Optional[str]
     generated_email: Optional[str]
 
     # Invoice details
@@ -75,3 +79,8 @@ class EmailSatisfaction(BaseModel):
             "Return 'True' if satisfied, 'False' if dissatisfied. Never return null."
         )
     )
+
+
+class EmailInfo(BaseModel):
+    """Extracts the email details mentioned by the user"""
+    email_address: Optional[str] = Field(default=None, description="The email address of the email message recipient")
