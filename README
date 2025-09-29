@@ -1,0 +1,9 @@
+To start up both the server and api
+```shell
+docker compose up --build
+```
+
+To shut down the docker
+```shell
+docker compose down -v
+```
