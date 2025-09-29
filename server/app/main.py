@@ -4,7 +4,7 @@ from fastapi import FastAPI, Depends, status, HTTPException
 from contextlib import asynccontextmanager
 
 from .db.connection import get_sqlmodel_session
-from .routers import user, oauth
+from .routers import user, chatbot, oauth
 from .config import Settings, get_settings
 from app.services.chatbot.checkpointer import initialise_checkpointer
 
@@ -28,6 +28,7 @@ app = FastAPI(
     ],
 )
 app.include_router(user.router)
+app.include_router(chatbot.router)
 app.include_router(oauth.router)
 
 @app.get("/")
