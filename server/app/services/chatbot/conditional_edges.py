@@ -56,7 +56,7 @@ def routing_check_provided_email_details(state: State) -> str:
     if state.get("email_address") is None:
         return "ask_for_email_details"
     else:
-        return "determine_email_satisfaction"
+        return "generate_email"
     
 
 def routing_determine_email_satisfaction(state: State) -> str:
@@ -80,8 +80,6 @@ def routing_wait_for_user_input(state: State) -> str:
         return "check_provided_invoice_details"
     elif state.get("intent") == "scheduleMeeting":
         return "check_provided_meeting_details"
-    elif state.get("intent") == "sendEmail" and state.get("email_address") is None:
-        return "check_provided_email_details"
     elif state.get("intent") == "sendEmail":
         return "determine_email_satisfaction"
     
