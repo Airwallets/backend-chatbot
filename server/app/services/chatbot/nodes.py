@@ -4,11 +4,13 @@ from app.services.chatbot.helper_functions import (
     extract_user_intent,
     extract_invoice_info,
     extract_meeting_info,
+    extract_email_satisfaction,
     user_input
 )
 from app.services.chatbot.models import State
 
-from ...services.google import create_google_api_client, create_calendar_event
+from app.services.google import create_google_api_client, create_calendar_event
+from app.services.email import gmail_create_draft, gmail_send_draft
 
 
 async def determine_user_intent_node(model, state: State):
@@ -145,7 +147,6 @@ async def check_provided_meeting_details_node(model, state: State):
     return {
         "meeting_title": extracted_info.get("meeting_title"),
         "recipient_email": extracted_info.get("recipient_email"),
-        "recipient_name": extracted_info.get("recipient_name"),
         "start_time": extracted_info.get("start_time")
     }
 
@@ -155,7 +156,7 @@ async def ask_for_meeting_details_node(model, state: State):
     Node to check which meeting details are missing and ask the user for them
     """
     
-    required_details = ["meeting_title", "recipient_email", "recipient_name", "start_time"]
+    required_details = ["meeting_title", "recipient_email", "start_time"]
     
     # Find which details are still missing
     missing_details = [detail for detail in required_details if not state.get(detail)]
@@ -178,3 +179,126 @@ async def ask_for_meeting_details_node(model, state: State):
     return {
         "messages": [AIMessage(content=prompt_text)]
     }
+
+
+async def schedule_meeting_node(model, state: State):
+    """
+    Node to schedule a meeting
+    """
+    meeting_title = state.get("meeting_title")
+    recipient_email = state.get("recipient_email")
+    start_time = state.get("start_time")
+    user = state.get("user")
+
+    calendar_client = create_google_api_client("calendar", user)
+
+    create_calendar_event(
+        client=calendar_client,
+        title=meeting_title,
+        email=recipient_email,
+        start_time=start_time
+    )
+
+    start_time_str = start_time.strftime("%Y-%m-%d %H:%M")
+
+    return {
+        "messages": [AIMessage(content=f"Scheduled meeting with {recipient_email} at {start_time_str}")]
+    }
+
+
+async def generate_email_node(model, state: State):
+    """
+    Node to generate an email
+    """
+
+    email_sender = state.get("user").name
+
+    body_prompt = (
+        f"You are an AI assistant tasked with drafting a professional, polite work email.\n"
+        f"The sender of the email should be: {email_sender}\n\n"
+        f"Conversation context:\n{state.get('messages')}\n\n"
+        "Compose the email clearly, concisely, and appropriately for a professional setting."
+    )
+
+    subject_prompt = (
+        f"You are an AI assistant tasked with writing the subject for a professional, polite work email.\n"
+        f"Conversation context:\n{state.get('messages')}\n\n"
+        "Compose the email subject clearly, concisely, and appropriately for a professional setting."
+    )
+    subject = await model.ainvoke(subject_prompt)
+    response = await model.ainvoke(body_prompt)
+    return {
+        "messages": [AIMessage(content=f"Here's an email I generated:\n\n{response.content}. Would you like me to send it?")],
+        "email_subject": subject,
+        "generated_email": response
+    }
+
+
+async def check_provided_email_details_node(model, state: State):
+    """
+    Node to check if any email details are provided, if not tries to extract it from the last user message
+    """
+    
+    # Extract provided meeting details from the last user message
+    last_message = state.get("messages")[-1].content if state.get("messages") else ""
+    extracted_info = extract_meeting_info(model, last_message)
+    
+    return {
+        "email_address": extracted_info.get("email_address")
+    }
+
+
+async def determine_email_satisfaction_node(model, state: State):
+    """
+    Node to extract satisfaction about the generated email
+    """
+    last_message = state.get("messages")[-1].content if state.get("messages") else ""
+    satisfied = extract_email_satisfaction(model, last_message)
+
+    return {"satisfied": satisfied}
+
+
+async def send_email_node(model, state: State):
+    """
+    Node to send an email
+    """
+    
+    current_user = state.get("user")
+    to = state.get("email_address")
+    subject = state.get("email_subject")
+    body = state.get("generated_email")
+
+    draft = gmail_create_draft(current_user, subject, body, to)
+    gmail_send_draft(current_user, draft["id"])
+
+    return {
+        "messages": [
+            AIMessage(content=f"Email successfully sent to {to} with subject '{subject}'.")
+        ]
+    }
+
+
+async def ask_for_email_details_node(model, state: State):
+    """
+    Node to check which email details are missing and ask the user for them
+    """
+    
+    required_details = ["email_address"]
+    
+    # Find which details are still missing
+    missing_details = [detail for detail in required_details if not state.get(detail)]
+    
+    # Construct a prompt asking for the missing details
+    if len(missing_details) == 1:
+        prompt_text = (
+            f"I am happy to help you send an email. "
+            f"Could you please provide the {missing_details[0]} for the email?"
+        )
+    
+    else:
+        # Join the details into a readable phrase to ask the user
+        fields_phrase = ", ".join(missing_details[:-1]) + f" and {missing_details[-1]}"
+        prompt_text = (
+            f"I am happy to help you send an email. "
+            f"Could you please provide the {fields_phrase} for the email?"
+        )

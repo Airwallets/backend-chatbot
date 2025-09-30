@@ -44,7 +44,7 @@ async def login():
     return RedirectResponse(url)
 
 @router.get("/callback")
-async def oauth_callback(session: SessionDep, code: str, response: Response):
+async def oauth_callback(session: SessionDep, code: str):
     # Exchange code for tokens
     data = {
         "code": code,
@@ -83,6 +83,8 @@ async def oauth_callback(session: SessionDep, code: str, response: Response):
         data={"sub": user.email}, expires_delta=access_token_expires
     )
 
+    response = RedirectResponse("http://localhost:8000/")
+
     response.set_cookie(
         key="access_token",
         value=access_token,
@@ -92,4 +94,4 @@ async def oauth_callback(session: SessionDep, code: str, response: Response):
         expires=settings.access_token_expire_minutes * 60,
     )
 
-    return JSONResponse({"msg": "Login Successful"})
+    return response
