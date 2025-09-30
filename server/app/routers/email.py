@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter
 from typing import Annotated
 
@@ -82,7 +83,23 @@ def gen_ai_draft(
 @router.post("/emails/get_emails")
 def get_gmail_emails(
     current_user: Annotated[User, Depends(get_current_user)],
+    session: SessionDep,
     label_ids: list[str] = None,
     query: str = "is:unread"
-):
-    return gmail_read_inbox(current_user, label_ids = label_ids, query = query)
+) -> list[Email]:
+    emails = gmail_read_inbox(current_user, label_ids = label_ids, query = query)
+    result = []
+    for email in emails:
+        parsed = Email(
+            from_sender = email["headers"]["From"],
+            email_subject = email["headers"]["Subject"],
+            email_status="unread",
+            email_timestamp=datetime.strptime(email["headers"]["Date"], "%a, %d %b %Y %H:%M:%S %z"),
+            full_content=email["body"]["text"],
+            user_id=current_user.user_id
+        )
+        session.add(parsed)
+        session.commit()
+        session.refresh(parsed)
+        result.append(parsed.model_copy())
+    return result
