@@ -214,21 +214,22 @@ async def generate_email_node(model, state: State):
     email_sender = state.get("user").name
 
     body_prompt = (
-        f"You are an AI assistant tasked with drafting a professional, polite work email.\n"
-        f"The sender of the email should be: {email_sender}\n\n"
+        f"You are an AI assistant tasked with drafting only the body of a professional and polite work email.\n"
+        f"The sender of the email is: {email_sender}\n\n"
         f"Conversation context:\n{state.get('messages')}\n\n"
-        "Compose the email clearly, concisely, and appropriately for a professional setting."
+        "Write only the email body text. Do not include a subject line, greeting, closing, or signature unless explicitly required by the context."
     )
 
     subject_prompt = (
-        f"You are an AI assistant tasked with writing the subject for a professional, polite work email.\n"
+        f"You are an AI assistant tasked with drafting only the subject line for a professional and polite work email.\n"
         f"Conversation context:\n{state.get('messages')}\n\n"
-        "Compose the email subject clearly, concisely, and appropriately for a professional setting."
+        "Write only the subject line. Do not include any additional text, explanations, or the email body."
     )
+    
     subject = await model.ainvoke(subject_prompt)
     response = await model.ainvoke(body_prompt)
     return {
-        "messages": [AIMessage(content=f"Here's an email I generated:\n\n{response.content}. Would you like me to send it?")],
+        "messages": [AIMessage(content=f"Here's an email I generated:\n\nSubject: {subject.content}\n Body:{response.content}. Would you like me to send it?")],
         "email_subject": subject,
         "generated_email": response
     }
