@@ -70,11 +70,11 @@ async def check_provided_invoice_details_node(model, state: State):
     extracted_info = extract_invoice_info(model, last_message)
     
     return {
-        "name": extracted_info.get("name"),
-        "phone_number": extracted_info.get("phone_number"),
-        "address": extracted_info.get("address"),
-        "item_name": extracted_info.get("item_name"),
-        "item_cost": extracted_info.get("item_cost")
+        "name": extracted_info.get("name") or state.get("name"),
+        "phone_number": extracted_info.get("phone_number") or state.get("phone_number"),
+        "address": extracted_info.get("address") or state.get("address"),
+        "item_name": extracted_info.get("item_name") or state.get("item_name"),
+        "item_cost": extracted_info.get("item_cost") or state.get("item_cost"),
     }
 
 
@@ -144,9 +144,9 @@ async def check_provided_meeting_details_node(model, state: State):
     extracted_info = extract_meeting_info(model, last_message)
     
     return {
-        "meeting_title": extracted_info.get("meeting_title"),
-        "recipient_email": extracted_info.get("recipient_email"),
-        "start_time": extracted_info.get("start_time")
+        "meeting_title": extracted_info.get("meeting_title") or state.get("meeting_title"),
+        "recipient_email": extracted_info.get("recipient_email") or state.get("recipient_email"),
+        "start_time": extracted_info.get("start_time") or state.get("start_time")
     }
 
 
