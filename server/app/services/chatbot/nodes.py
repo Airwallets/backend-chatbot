@@ -31,12 +31,10 @@ async def prompt_for_correct_user_intent_node(model, state: State):
    
     prompt = (
         "You are a helpful assistant that guides users about supported actions. "
-        "You can only support five actions:\n"
-        "1. Generating an invoice (generateInvoice).\n"
-        "2. Parsing or extracting details from an invoice (parseInvoice).\n"
-        "3. Drafting or sending an email (sendEmail).\n"
-        "4. Replying to an email (replyEmail).\n"
-        "5. Scheduling or arranging a meeting (scheduleMeeting).\n\n"
+        "You can only support these actions:\n"
+        "1. Generating an invoice.\n"
+        "2. Drafting or sending an email.\n"
+        "3. Scheduling or arranging a meeting (scheduleMeeting).\n\n"
         "If the user requests something else, politely explain that you cannot help with that and "
         "redirect them to one of the five supported actions.\n\n"
         "Conversation so far:\n"
