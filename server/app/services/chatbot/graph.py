@@ -59,7 +59,7 @@ async def get_graph(checkpointer: AsyncPostgresSaver = None) -> StateGraph:
 
     # Add edges to the graph
     graph_builder.add_edge(START, "determine_user_intent")
-    graph_builder.add_edge("prompt_for_correct_intent", "wait_for_user_input")
+    graph_builder.add_edge("prompt_for_correct_user_intent", "wait_for_user_input")
     graph_builder.add_edge("ask_for_invoice_details", "wait_for_user_input")
     graph_builder.add_edge("ask_for_meeting_details", "wait_for_user_input")
     graph_builder.add_edge("ask_for_email_details", "wait_for_user_input")
