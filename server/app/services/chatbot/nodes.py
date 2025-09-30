@@ -10,7 +10,7 @@ from app.services.chatbot.helper_functions import (
 from app.services.chatbot.models import State
 
 from app.services.google import create_google_api_client, create_calendar_event
-from app.services.email import get_credentials, refresh_google_token, gmail_create_draft, gmail_send_draft
+from app.services.email import gmail_create_draft, gmail_send_draft
 
 
 async def determine_user_intent_node(model, state: State):
