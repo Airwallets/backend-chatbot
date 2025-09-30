@@ -19,6 +19,7 @@ def create_google_api_client(service, user: User):
         scopes=" ".join(SCOPES)
     )
     service = build(service, "v3", credentials=creds)
+    return service
 
 def create_calendar_event(client, title, email, start_time):
     # Event details
