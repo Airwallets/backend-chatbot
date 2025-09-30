@@ -263,17 +263,13 @@ async def send_email_node(model, state: State):
     Node to send an email
     """
     
-    user = state.get("user")
+    current_user = state.get("user")
     to = state.get("email_address")
     subject = state.get("email_subject")
     body = state.get("generated_email")
 
-    if not user.access_token and user.refresh_token:
-            user.access_token = refresh_google_token(user.refresh_token)
-
-    draft = gmail_create_draft(user=user, subject=subject, body=body, to=to)
-    # what should the id be?
-    gmail_send_draft(user=user, draft_id=draft["id"])
+    draft = gmail_create_draft(current_user, subject, body, to)
+    gmail_send_draft(current_user, draft["id"])
 
     return {
         "messages": [
