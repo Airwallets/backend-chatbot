@@ -8,7 +8,7 @@ from app.config import get_settings
 from app.db.connection import SessionDep
 from app.dependencies import get_current_user
 from app.schemas.app import User, BaseEmail, Email
-from app.services.email import gmail_create_draft, gmail_send_draft
+from app.services.email import gmail_create_draft, gmail_send_draft, gmail_read_inbox
 
 from app.services.chatbot.email import get_ai_summary, get_ai_draft, Summary, Draft
 
@@ -78,3 +78,11 @@ def gen_ai_draft(
     message: str
 ) -> Draft:
     return get_ai_draft(message)
+
+@router.post("/emails/get_emails")
+def get_gmail_emails(
+    current_user: Annotated[User, Depends(get_current_user)],
+    label_ids: list[str] = None,
+    query: str = "is:unread"
+):
+    return gmail_read_inbox(current_user, label_ids = label_ids, query = query)
