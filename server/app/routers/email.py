@@ -10,6 +10,8 @@ from app.dependencies import get_current_user
 from app.schemas.app import User, BaseEmail, Email
 from app.services.email import gmail_create_draft, gmail_send_draft
 
+from app.services.chatbot.email import get_ai_summary, get_ai_draft, Summary, Draft
+
 router = APIRouter(tags=["email"])
 
 
@@ -64,3 +66,15 @@ def send_draft(
     draft = gmail_create_draft(current_user, subject, body, to)
     gmail_send_draft(current_user, draft["id"])
     return {"message": "Message sent"}
+
+@router.post("/emails/gen_ai_summary")
+def gen_ai_summary(
+    message: str
+) -> Summary:
+    return get_ai_summary(message)
+
+@router.post("/emails/gen_ai_draft")
+def gen_ai_draft(
+    message: str
+) -> Draft:
+    return get_ai_draft(message)
