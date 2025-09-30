@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import Response, Depends, HTTPException, status, Request
 from sqlmodel import select
+from pydantic import BaseModel
 
 from app.config import get_settings
 from app.db.connection import SessionDep
@@ -68,17 +69,20 @@ def send_draft(
     gmail_send_draft(current_user, draft["id"])
     return {"message": "Message sent"}
 
+class Message(BaseModel):
+    message: str
+
 @router.post("/emails/gen_ai_summary")
 def gen_ai_summary(
-    message: str
+    message: Message
 ) -> Summary:
-    return get_ai_summary(message)
+    return get_ai_summary(message.message)
 
 @router.post("/emails/gen_ai_draft")
 def gen_ai_draft(
-    message: str
+    message: Message
 ) -> Draft:
-    return get_ai_draft(message)
+    return get_ai_draft(message.message)
 
 @router.post("/emails/get_emails")
 def get_gmail_emails(
