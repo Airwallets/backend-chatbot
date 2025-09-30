@@ -16,7 +16,7 @@ def create_google_api_client(service, user: User):
         refresh_token=user.refresh_token,
         client_id=settings.google_client_id,
         client_secret=settings.google_client_secret,
-        scopes=" ".join(SCOPES)
+        scopes=SCOPES
     )
     service = build(service, "v3", credentials=creds)
     return service
@@ -29,11 +29,11 @@ def create_calendar_event(client, title, email, start_time):
         "summary": title,
         "start": {
             "dateTime": start_time.isoformat() + "Z",  # UTC
-            "timeZone": "UTC",
+            "timeZone": "Australia/Sydney",
         },
         "end": {
             "dateTime": end_time.isoformat() + "Z",
-            "timeZone": "UTC",
+            "timeZone": "Australia/Sydney",
         },
         "attendees": [
             {"email": email}

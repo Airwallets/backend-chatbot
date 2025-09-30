@@ -4,6 +4,7 @@ from email.message import EmailMessage
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from google.auth.transport.requests import Request
 from app.config import get_settings
 import requests
 
@@ -18,8 +19,13 @@ def get_credentials(user: User) -> Credentials:
     refresh_token=user.refresh_token,
     client_id=settings.google_client_id,
     client_secret=settings.google_client_secret,
-    scopes=" ".join(SCOPES)
+    scopes=SCOPES
   )
+
+  # Check if the credentials are expired and refresh them if necessary
+  if creds.expired and creds.refresh_token:
+    creds.refresh(Request())
+  
   return creds
 
 def refresh_google_token(refresh_token: str):
