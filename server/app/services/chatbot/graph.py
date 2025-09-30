@@ -26,7 +26,8 @@ from app.services.chatbot.conditional_edges import (
     routing_check_provided_invoice_details,
     routing_check_provided_meeting_details,
     routing_check_provided_email_details,
-    routing_determine_email_satisfaction
+    routing_determine_email_satisfaction,
+    routing_wait_for_user_input
 )
 from app.services.chatbot.models import State
 
@@ -73,6 +74,6 @@ async def get_graph(checkpointer: AsyncPostgresSaver = None) -> StateGraph:
     graph_builder.add_conditional_edges("check_provided_meeting_details", routing_check_provided_meeting_details)
     graph_builder.add_conditional_edges("check_provided_email_details", routing_check_provided_email_details)
     graph_builder.add_conditional_edges("determine_email_satisfaction", routing_determine_email_satisfaction)
-    graph_builder.add_condiitonal_edges("wait_for_user_input", )
+    graph_builder.add_condiitonal_edges("wait_for_user_input", routing_wait_for_user_input)
 
     return graph_builder.compile(checkpointer=checkpointer, debug=True)
