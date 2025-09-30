@@ -4,6 +4,7 @@ from app.services.chatbot.helper_functions import (
     extract_user_intent,
     extract_invoice_info,
     extract_meeting_info,
+    extract_email_info,
     extract_email_satisfaction,
     user_input
 )
@@ -30,12 +31,10 @@ async def prompt_for_correct_user_intent_node(model, state: State):
    
     prompt = (
         "You are a helpful assistant that guides users about supported actions. "
-        "You can only support five actions:\n"
-        "1. Generating an invoice (generateInvoice).\n"
-        "2. Parsing or extracting details from an invoice (parseInvoice).\n"
-        "3. Drafting or sending an email (sendEmail).\n"
-        "4. Replying to an email (replyEmail).\n"
-        "5. Scheduling or arranging a meeting (scheduleMeeting).\n\n"
+        "You can only support these actions:\n"
+        "1. Generating an invoice.\n"
+        "2. Drafting or sending an email.\n"
+        "3. Scheduling or arranging a meeting (scheduleMeeting).\n\n"
         "If the user requests something else, politely explain that you cannot help with that and "
         "redirect them to one of the five supported actions.\n\n"
         "Conversation so far:\n"
@@ -214,23 +213,24 @@ async def generate_email_node(model, state: State):
     email_sender = state.get("user").name
 
     body_prompt = (
-        f"You are an AI assistant tasked with drafting a professional, polite work email.\n"
-        f"The sender of the email should be: {email_sender}\n\n"
+        f"You are an AI assistant tasked with drafting only the body of a professional and polite work email.\n"
+        f"The sender of the email is: {email_sender}\n\n"
         f"Conversation context:\n{state.get('messages')}\n\n"
-        "Compose the email clearly, concisely, and appropriately for a professional setting."
+        "Write only the email body text. Do not include a subject line, greeting, closing, or signature unless explicitly required by the context."
     )
 
     subject_prompt = (
-        f"You are an AI assistant tasked with writing the subject for a professional, polite work email.\n"
+        f"You are an AI assistant tasked with drafting only the subject line for a professional and polite work email.\n"
         f"Conversation context:\n{state.get('messages')}\n\n"
-        "Compose the email subject clearly, concisely, and appropriately for a professional setting."
+        "Write only the subject line. Do not include any additional text, explanations, or the email body."
     )
+
     subject = await model.ainvoke(subject_prompt)
     response = await model.ainvoke(body_prompt)
     return {
-        "messages": [AIMessage(content=f"Here's an email I generated:\n\n{response.content}. Would you like me to send it?")],
-        "email_subject": subject,
-        "generated_email": response
+        "messages": [AIMessage(content=f"Here's an email I generated:\n\nSubject: {subject.content}\n Body:{response.content}. Would you like me to send it?")],
+        "email_subject": subject.content,
+        "generated_email": response.content
     }
 
 
@@ -241,7 +241,7 @@ async def check_provided_email_details_node(model, state: State):
     
     # Extract provided meeting details from the last user message
     last_message = state.get("messages")[-1].content if state.get("messages") else ""
-    extracted_info = extract_meeting_info(model, last_message)
+    extracted_info = extract_email_info(model, last_message)
     
     return {
         "email_address": extracted_info.get("email_address")
