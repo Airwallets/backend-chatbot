@@ -59,6 +59,7 @@ async def get_graph(checkpointer: AsyncPostgresSaver = None) -> StateGraph:
 
     # Add edges to the graph
     graph_builder.add_edge(START, "determine_user_intent")
+    graph_builder.add_edge("prompt_for_correct_intent", "wait_for_user_input")
     graph_builder.add_edge("ask_for_invoice_details", "wait_for_user_input")
     graph_builder.add_edge("ask_for_meeting_details", "wait_for_user_input")
     graph_builder.add_edge("ask_for_email_details", "wait_for_user_input")
@@ -74,6 +75,6 @@ async def get_graph(checkpointer: AsyncPostgresSaver = None) -> StateGraph:
     graph_builder.add_conditional_edges("check_provided_meeting_details", routing_check_provided_meeting_details)
     graph_builder.add_conditional_edges("check_provided_email_details", routing_check_provided_email_details)
     graph_builder.add_conditional_edges("determine_email_satisfaction", routing_determine_email_satisfaction)
-    graph_builder.add_condiitonal_edges("wait_for_user_input", routing_wait_for_user_input)
+    graph_builder.add_conditional_edges("wait_for_user_input", routing_wait_for_user_input)
 
     return graph_builder.compile(checkpointer=checkpointer, debug=True)
