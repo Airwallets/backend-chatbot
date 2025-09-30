@@ -4,6 +4,7 @@ from app.services.chatbot.helper_functions import (
     extract_user_intent,
     extract_invoice_info,
     extract_meeting_info,
+    extract_email_info,
     extract_email_satisfaction,
     user_input
 )
@@ -225,13 +226,13 @@ async def generate_email_node(model, state: State):
         f"Conversation context:\n{state.get('messages')}\n\n"
         "Write only the subject line. Do not include any additional text, explanations, or the email body."
     )
-    
+
     subject = await model.ainvoke(subject_prompt)
     response = await model.ainvoke(body_prompt)
     return {
         "messages": [AIMessage(content=f"Here's an email I generated:\n\nSubject: {subject.content}\n Body:{response.content}. Would you like me to send it?")],
-        "email_subject": subject,
-        "generated_email": response
+        "email_subject": subject.content,
+        "generated_email": response.content
     }
 
 
@@ -242,7 +243,7 @@ async def check_provided_email_details_node(model, state: State):
     
     # Extract provided meeting details from the last user message
     last_message = state.get("messages")[-1].content if state.get("messages") else ""
-    extracted_info = extract_meeting_info(model, last_message)
+    extracted_info = extract_email_info(model, last_message)
     
     return {
         "email_address": extracted_info.get("email_address")
